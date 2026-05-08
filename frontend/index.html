@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tasks App</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 2rem auto; }
+    h1 { margin-bottom: .5rem; }
+    ul { padding-left: 1rem; }
+    li { margin: .3rem 0; }
+    .row { display: flex; gap: .5rem; margin: 1rem 0; }
+    input { flex: 1; padding: .6rem; }
+    button { padding: .6rem 1rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Список задач</h1>
+  <p>Frontend + Backend (Flask) через Docker Compose</p>
+  <div class="row">
+    <input id="title" placeholder="Новая задача" />
+    <button id="addBtn">Добавить</button>
+  </div>
+  <ul id="list"></ul>
+
+  <script>
+    const API = 'http://localhost:5000/api';
+
+    async function loadTasks() {
+      const res = await fetch(`${API}/tasks`);
+      const tasks = await res.json();
+      const ul = document.getElementById('list');
+      ul.innerHTML = '';
+      tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = `${t.id}. ${t.title}`;
+        ul.appendChild(li);
+      });
+    }
+
+    document.getElementById('addBtn').addEventListener('click', async () => {
+      const input = document.getElementById('title');
+      const title = input.value.trim();
+      if (!title) return;
+
+      await fetch(`${API}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      });
+
+      input.value = '';
+      await loadTasks();
+    });
+
+    loadTasks();
+  </script>
+</body>
+</html>
