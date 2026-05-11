@@ -3,57 +3,431 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tasks App</title>
+  <title>Кинотека</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 700px; margin: 2rem auto; }
-    h1 { margin-bottom: .5rem; }
-    ul { padding-left: 1rem; }
-    li { margin: .3rem 0; }
-    .row { display: flex; gap: .5rem; margin: 1rem 0; }
-    input { flex: 1; padding: .6rem; }
-    button { padding: .6rem 1rem; cursor: pointer; }
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #637083;
+      --line: #dce3ea;
+      --accent: #c93f2f;
+      --accent-dark: #9f2f25;
+      --focus: #246b92;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    header {
+      background: #101820;
+      color: #fff;
+      padding: 28px clamp(16px, 4vw, 48px);
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: 0;
+    }
+
+    header p {
+      max-width: 760px;
+      margin: 0;
+      color: #c8d2dc;
+      font-size: 16px;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 24px auto 44px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 1.4fr) repeat(5, minmax(120px, 1fr));
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+    }
+
+    input, select, textarea {
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 11px;
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    button {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover { background: var(--accent-dark); }
+    button.secondary {
+      background: #fff;
+      color: var(--focus);
+      border-color: #b9cad6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .movies {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .movie-card {
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(16, 24, 32, .12);
+    }
+
+    .poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      background: #d6dde4;
+      display: block;
+    }
+
+    .movie-body {
+      padding: 13px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .movie-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge {
+      background: #edf2f6;
+      border-radius: 999px;
+      color: #314354;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .details {
+      position: sticky;
+      top: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .details h2 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    .details h3 {
+      margin: 22px 0 8px;
+      font-size: 17px;
+    }
+
+    .review {
+      border-top: 1px solid var(--line);
+      padding: 12px 0;
+    }
+
+    .review:first-of-type { border-top: 0; }
+    .review strong { color: var(--focus); }
+
+    .review-form {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .empty {
+      padding: 24px;
+      background: var(--panel);
+      border: 1px dashed #b7c2cc;
+      border-radius: 8px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 980px) {
+      .toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layout { grid-template-columns: 1fr; }
+      .details { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      main { width: min(100% - 24px, 1180px); }
+      .toolbar { grid-template-columns: 1fr; }
+      .movies { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <h1>Список задач</h1>
-  <p>Frontend + Backend (Flask) через Docker Compose</p>
-  <div class="row">
-    <input id="title" placeholder="Новая задача" />
-    <button id="addBtn">Добавить</button>
-  </div>
-  <ul id="list"></ul>
+  <header>
+    <h1>Кинотека</h1>
+    <p>Каталог фильмов с поиском, фильтрами по жанрам, странам, годам, карточками фильмов и отзывами пользователей.</p>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Фильтры каталога">
+      <label>
+        Поиск
+        <input id="search" placeholder="Название, оригинал или описание" />
+      </label>
+      <label>
+        Жанр
+        <select id="genre"><option value="">Все жанры</option></select>
+      </label>
+      <label>
+        Страна
+        <select id="country"><option value="">Все страны</option></select>
+      </label>
+      <label>
+        Режиссер
+        <select id="director"><option value="">Все режиссеры</option></select>
+      </label>
+      <label>
+        Год от
+        <input id="yearFrom" type="number" min="1900" max="2100" placeholder="1900" />
+      </label>
+      <label>
+        Год до
+        <input id="yearTo" type="number" min="1900" max="2100" placeholder="2026" />
+      </label>
+    </section>
+
+    <section class="layout">
+      <div>
+        <div id="movies" class="movies"></div>
+      </div>
+      <aside id="details" class="details">
+        <h2>Выберите фильм</h2>
+        <p class="meta">Здесь появятся описание, актеры, рейтинг и отзывы.</p>
+      </aside>
+    </section>
+  </main>
 
   <script>
-    const API = 'http://localhost:5000/api';
+    const API = 'http://localhost:5001/api';
+    const state = { movies: [], selectedId: null };
 
-    async function loadTasks() {
-      const res = await fetch(`${API}/tasks`);
-      const tasks = await res.json();
-      const ul = document.getElementById('list');
-      ul.innerHTML = '';
-      tasks.forEach(t => {
-        const li = document.createElement('li');
-        li.textContent = `${t.id}. ${t.title}`;
-        ul.appendChild(li);
+    const fields = {
+      movies: document.getElementById('movies'),
+      details: document.getElementById('details'),
+      search: document.getElementById('search'),
+      genre: document.getElementById('genre'),
+      country: document.getElementById('country'),
+      director: document.getElementById('director'),
+      yearFrom: document.getElementById('yearFrom'),
+      yearTo: document.getElementById('yearTo'),
+    };
+
+    function option(label, value) {
+      const item = document.createElement('option');
+      item.value = value;
+      item.textContent = label;
+      return item;
+    }
+
+    async function loadCatalog() {
+      const res = await fetch(`${API}/catalog`);
+      const catalog = await res.json();
+      catalog.genres.forEach(item => fields.genre.appendChild(option(item.name, item.name)));
+      catalog.countries.forEach(item => fields.country.appendChild(option(item.name, item.name)));
+      catalog.directors.forEach(item => fields.director.appendChild(option(item.name, item.name)));
+    }
+
+    function buildQuery() {
+      const params = new URLSearchParams();
+      const values = {
+        q: fields.search.value.trim(),
+        genre: fields.genre.value,
+        country: fields.country.value,
+        director: fields.director.value,
+        year_from: fields.yearFrom.value,
+        year_to: fields.yearTo.value,
+      };
+
+      Object.entries(values).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+      });
+      return params.toString();
+    }
+
+    async function loadMovies() {
+      const query = buildQuery();
+      const res = await fetch(`${API}/movies${query ? `?${query}` : ''}`);
+      state.movies = await res.json();
+      renderMovies();
+      if (state.movies.length && !state.movies.some(movie => movie.id === state.selectedId)) {
+        await selectMovie(state.movies[0].id);
+      }
+      if (!state.movies.length) {
+        fields.details.innerHTML = '<h2>Ничего не найдено</h2><p class="meta">Измените фильтры или поисковый запрос.</p>';
+      }
+    }
+
+    function renderMovies() {
+      fields.movies.innerHTML = '';
+      if (!state.movies.length) {
+        fields.movies.innerHTML = '<div class="empty">Фильмы по заданным условиям не найдены.</div>';
+        return;
+      }
+
+      state.movies.forEach(movie => {
+        const card = document.createElement('article');
+        card.className = 'movie-card';
+        card.tabIndex = 0;
+        card.innerHTML = `
+          <img class="poster" src="${movie.poster_url}" alt="${movie.title}" loading="lazy">
+          <div class="movie-body">
+            <h2 class="movie-title">${movie.title}</h2>
+            <div class="meta">${movie.original_title}, ${movie.release_year} · ${movie.duration} мин</div>
+            <div class="badge-row">
+              <span class="badge">${movie.genre}</span>
+              <span class="badge">${movie.rating.toFixed(1)} / 10</span>
+              <span class="badge">${movie.review_count} отзыв.</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => selectMovie(movie.id));
+        card.addEventListener('keydown', event => {
+          if (event.key === 'Enter') selectMovie(movie.id);
+        });
+        fields.movies.appendChild(card);
       });
     }
 
-    document.getElementById('addBtn').addEventListener('click', async () => {
-      const input = document.getElementById('title');
-      const title = input.value.trim();
-      if (!title) return;
+    async function selectMovie(id) {
+      state.selectedId = id;
+      const res = await fetch(`${API}/movies/${id}`);
+      const movie = await res.json();
+      const actors = movie.actors.map(actor => `${actor.name} (${actor.character})`).join(', ');
+      const reviews = movie.reviews.length
+        ? movie.reviews.map(review => `
+            <div class="review">
+              <strong>${review.author}</strong>
+              <div class="meta">Оценка: ${review.rating} / 10</div>
+              <p>${review.text}</p>
+            </div>
+          `).join('')
+        : '<p class="meta">Пока нет отзывов.</p>';
 
-      await fetch(`${API}/tasks`, {
+      fields.details.innerHTML = `
+        <h2>${movie.title}</h2>
+        <div class="meta">${movie.original_title}, ${movie.release_year} · ${movie.duration} мин</div>
+        <p>${movie.description}</p>
+        <div class="badge-row">
+          <span class="badge">${movie.genre}</span>
+          <span class="badge">${movie.director}</span>
+          <span class="badge">${movie.country}</span>
+        </div>
+        <h3>Актеры</h3>
+        <p class="meta">${actors || 'Нет данных'}</p>
+        <h3>Отзывы</h3>
+        ${reviews}
+        <form class="review-form" id="reviewForm">
+          <label>
+            Оценка
+            <input id="reviewRating" type="number" min="1" max="10" value="8" required>
+          </label>
+          <label>
+            Текст отзыва
+            <textarea id="reviewText" placeholder="Что понравилось или не понравилось?" required></textarea>
+          </label>
+          <button type="submit">Добавить отзыв</button>
+        </form>
+      `;
+
+      document.getElementById('reviewForm').addEventListener('submit', addReview);
+    }
+
+    async function addReview(event) {
+      event.preventDefault();
+      const rating = Number(document.getElementById('reviewRating').value);
+      const text = document.getElementById('reviewText').value.trim();
+      if (!text) return;
+
+      await fetch(`${API}/movies/${state.selectedId}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title })
+        body: JSON.stringify({ rating, text, user_id: 1 }),
       });
 
-      input.value = '';
-      await loadTasks();
+      await selectMovie(state.selectedId);
+      await loadMovies();
+    }
+
+    let searchTimer;
+    [fields.genre, fields.country, fields.director, fields.yearFrom, fields.yearTo].forEach(field => {
+      field.addEventListener('change', loadMovies);
+    });
+    fields.search.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(loadMovies, 220);
     });
 
-    loadTasks();
+    loadCatalog().then(loadMovies);
   </script>
 </body>
 </html>
