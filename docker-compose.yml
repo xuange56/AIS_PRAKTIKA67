@@ -1,13 +1,13 @@
 services:
   backend:
     build: ./backend
-    container_name: tasks_backend
+    container_name: kursa4_backend
     ports:
       - "5001:5000"
 
   frontend:
     build: ./frontend
-    container_name: tasks_frontend
+    container_name: kursa4_frontend
     ports:
       - "8080:80"
     depends_on:

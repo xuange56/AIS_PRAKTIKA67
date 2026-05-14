@@ -183,7 +183,7 @@ def serialize_review(review):
 
 @app.get("/api/health")
 def health():
-    return jsonify({"status": "ok", "service": "movie-library"})
+    return jsonify({"status": "ok", "service": "kursa4-movie-library"})
 
 
 @app.get("/api/catalog")
